@@ -57,13 +57,12 @@ namespace NancyApplication1
                             TargetUrl = new Uri(Request.Url.SiteBase),
                             Context = "arbitrary",
                         });
-                    return newStatus;
                 }
                 catch (NotFoundException)
                 {
                     return HttpStatusCode.NotFound;
                 }
-                return String.Format("https://api.github.com/repos/{0}/{1}/commits/{2}/status",
+                return String.Format("Done! Go to https://api.github.com/repos/{0}/{1}/commits/{2}/status",
                     parms.user, parms.repo, parms.sha);
             };
 
