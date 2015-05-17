@@ -40,6 +40,33 @@ namespace NancyApplication1
                 }
             };
 
+            Get["/{user}/{repo}/{sha}/{status}", true] = async (parms, ctx) =>
+            {
+                var accessToken = Session["accessToken"] as string;
+                if (string.IsNullOrEmpty(accessToken))
+                    return RedirectToOAuth();
+                client.Credentials = new Credentials(accessToken);
+
+                CommitState newState = Enum.Parse(typeof(CommitState), parms.status, true);
+                try
+                {
+                    CommitStatus newStatus = await client.Repository.CommitStatus.Create(
+                        parms.user, parms.repo, parms.sha, new NewCommitStatus
+                        {
+                            State = newState,
+                            TargetUrl = new Uri(Request.Url.SiteBase),
+                            Context = "arbitrary",
+                        });
+                    return newStatus;
+                }
+                catch (NotFoundException)
+                {
+                    return HttpStatusCode.NotFound;
+                }
+                return String.Format("https://api.github.com/repos/{0}/{1}/commits/{2}/status",
+                    parms.user, parms.repo, parms.sha);
+            };
+
             Get["/authorize", true] = async (parms, ctx) =>
             {
                 var csrf = Session["CSRF:State"] as string;
