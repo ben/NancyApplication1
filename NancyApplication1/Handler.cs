@@ -34,7 +34,7 @@ namespace NancyApplication1
                 {
                     IEnumerable<CommitStatus> statuses = await client.Repository.CommitStatus.GetAll(
                         parms.user, parms.repo, parms.sha);
-                    return string.Join("\n",
+                    return string.Join("<br/>",
                         statuses.Select(x => string.Format("{0}: {1}", x.UpdatedAt, x.State)));
                 }
                 catch (NotFoundException)
