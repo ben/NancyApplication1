@@ -2,6 +2,7 @@
 using Octokit;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 
@@ -76,7 +77,7 @@ namespace NancyApplication1
                     return HttpStatusCode.Unauthorized;
                 }
 
-                var successUrl = Request.Url.SiteBase + "/authorize/success";
+                var successUrl = ConfigurationManager.AppSettings["baseUrl"] + "/authorize/success";
                 var token = await client.Oauth.CreateAccessToken(
                     new OauthTokenRequest(clientId, clientSecret, Request.Query["code"].ToString())
                     {
