@@ -16,13 +16,14 @@ namespace NancyApplication1
 
         public Handler()
         {
-            Get["/", true] = async (x, ct) =>
+            Get["/{user}", true] = async (parms, ct) =>
             {
-                var user = await client.User.Get("ben");
+                var user = await client.User.Get(parms.user.ToString());
                 return String.Format("{0} people love {1}!", user.Followers, user.Name);
             };
 
-            Get["/{user}/{repo}/{sha}", true] = async (parms, ctx) =>
+            // No need to write about this
+            Get["/{user}/{repo}/{sha}", true] = async (parms, ct) =>
             {
                 var accessToken = Session["accessToken"] as string;
                 if (string.IsNullOrEmpty(accessToken))
@@ -42,7 +43,7 @@ namespace NancyApplication1
                 }
             };
 
-            Get["/{user}/{repo}/{sha}/{status}", true] = async (parms, ctx) =>
+            Get["/{user}/{repo}/{sha}/{status}", true] = async (parms, ct) =>
             {
                 var accessToken = Session["accessToken"] as string;
                 if (string.IsNullOrEmpty(accessToken))
@@ -64,11 +65,13 @@ namespace NancyApplication1
                 {
                     return HttpStatusCode.NotFound;
                 }
-                return String.Format("Done! Go to https://api.github.com/repos/{0}/{1}/commits/{2}/status",
+                return String.Format(
+                    @"Done! Go to <a href=""https://api.github.com/repos/{0}/{1}/commits/{2}/status"">this API endpiont</a> " +
+                    @"or <a href=""/{0}/{1}/{2}"">the local view</a>",
                     parms.user, parms.repo, parms.sha);
             };
 
-            Get["/authorize", true] = async (parms, ctx) =>
+            Get["/authorize", true] = async (parms, ct) =>
             {
                 var csrf = Session["CSRF:State"] as string;
                 Session.Delete("CSRF:State");
