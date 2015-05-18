@@ -30,9 +30,10 @@ namespace NancyApplication1
 
                 try
                 {
-                    var status = await client.Repository.CommitStatus.GetCombined(
+                    IEnumerable<CommitStatus> statuses = await client.Repository.CommitStatus.GetAll(
                         parms.user, parms.repo, parms.sha);
-                    return status.State.ToString();
+                    return string.Join("\n",
+                        statuses.Select(x => string.Format("{0}: {1}", x.UpdatedAt, x.State)));
                 }
                 catch (NotFoundException)
                 {
@@ -75,13 +76,18 @@ namespace NancyApplication1
                     return HttpStatusCode.Unauthorized;
                 }
 
+                var successUrl = Request.Url.SiteBase + "/authorize/success";
                 var token = await client.Oauth.CreateAccessToken(
                     new OauthTokenRequest(clientId, clientSecret, Request.Query["code"].ToString())
                     {
-                        RedirectUri = new Uri(Request.Url.SiteBase + "/authorize")
+                        RedirectUri = new Uri(successUrl)
                     });
                 Session["accessToken"] = token.AccessToken;
+                return Response.AsRedirect(successUrl);
+            };
 
+            Get["/authorize/success"] = _ =>
+            {
                 var origUrl = Session["OrigUrl"].ToString();
                 Session.Delete("OrigUrl");
                 return Response.AsRedirect(origUrl);
